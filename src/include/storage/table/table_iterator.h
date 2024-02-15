@@ -36,6 +36,7 @@ class TableIterator {
 
   TableIterator(TableHeap *table_heap, RID rid, RID stop_at_rid);
   TableIterator(TableIterator &&) = default;
+  auto operator=(TableIterator &&) -> TableIterator & = default;
 
   ~TableIterator() = default;
 

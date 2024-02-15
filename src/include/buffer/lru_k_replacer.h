@@ -12,9 +12,13 @@
 
 #pragma once
 
+#include <functional>
 #include <limits>
 #include <list>
+#include <memory>
 #include <mutex>  // NOLINT
+#include <queue>
+#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -26,14 +30,13 @@ namespace bustub {
 enum class AccessType { Unknown = 0, Lookup, Scan, Index };
 
 class LRUKNode {
- private:
+ public:
+  explicit LRUKNode(frame_id_t fid) : fid_(fid){};
   /** History of last seen K timestamps of this page. Least recent timestamp stored in front. */
   // Remove maybe_unused if you start using them. Feel free to change the member variables as you want.
-
-  [[maybe_unused]] std::list<size_t> history_;
-  [[maybe_unused]] size_t k_;
-  [[maybe_unused]] frame_id_t fid_;
-  [[maybe_unused]] bool is_evictable_{false};
+  std::vector<size_t> history_;
+  frame_id_t fid_;
+  bool is_evictable_{false};
 };
 
 /**
@@ -150,12 +153,34 @@ class LRUKReplacer {
  private:
   // TODO(student): implement me! You can replace these member variables as you like.
   // Remove maybe_unused if you start using them.
-  [[maybe_unused]] std::unordered_map<frame_id_t, LRUKNode> node_store_;
-  [[maybe_unused]] size_t current_timestamp_{0};
-  [[maybe_unused]] size_t curr_size_{0};
-  [[maybe_unused]] size_t replacer_size_;
-  [[maybe_unused]] size_t k_;
-  [[maybe_unused]] std::mutex latch_;
+  // static auto Cmp(LRUKNode* p1, LRUKNode* p2) -> bool{
+  //   return p1->history_[p1->history_.size() - k_] > p2->history_[p2->history_.size() - k_];
+  // }
+  auto Cmp(const std::shared_ptr<LRUKNode> &p1, const std::shared_ptr<LRUKNode> &p2) -> bool {
+    size_t p1_size = p1->history_.size();
+    size_t p2_size = p2->history_.size();
+    if (p1_size >= k_ && p2_size >= k_) {
+      return p1->history_[p1_size - k_] < p2->history_[p2_size - k_];
+    }
+    if (p1_size < k_ && p2_size < k_) {
+      return p1->history_[0] < p2->history_[0];
+    }
+    return p1_size < p2_size;
+  }
+
+  std::set<std::shared_ptr<LRUKNode>,
+           std::function<bool(const std::shared_ptr<LRUKNode> &p1, const std::shared_ptr<LRUKNode> &p2)>>
+      lru_order_;
+  std::unordered_map<frame_id_t, std::shared_ptr<LRUKNode>> node_store_;
+
+  std::list<std::shared_ptr<LRUKNode>> less_k_;
+  std::list<std::shared_ptr<LRUKNode>> more_k_;
+  // std::priority_queue<LRUKNode*, std::vector<LRUKNode*>, decltype(&Cmp)> more_k_;
+  size_t current_timestamp_{0};
+  size_t curr_size_{0};
+  size_t replacer_size_;
+  size_t k_;
+  std::mutex latch_;
 };
 
 }  // namespace bustub

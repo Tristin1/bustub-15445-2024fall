@@ -148,7 +148,7 @@ class BufferPoolManager {
    * @param page_id id of page to be flushed, cannot be INVALID_PAGE_ID
    * @return false if the page could not be found in the page table, true otherwise
    */
-  auto FlushPage(page_id_t page_id) -> bool;
+  auto FlushPage(page_id_t pid) -> bool;
 
   /**
    * TODO(P1): Add implementation
@@ -208,5 +208,9 @@ class BufferPoolManager {
   }
 
   // TODO(student): You may add additional private members and helper functions
+  auto GetFreeFid() -> frame_id_t;
+  auto InitNewPage(page_id_t pid, frame_id_t fid) -> void;
+  auto FlushFrame(page_id_t pid, frame_id_t fid) -> bool;
+  auto AccessLRUK(frame_id_t fid) -> void;
 };
-}  // namespace bustub
+};  // namespace bustub

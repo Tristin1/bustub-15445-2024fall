@@ -110,8 +110,7 @@ class DiskExtendibleHashTable {
    */
   auto Hash(K key) const -> uint32_t;
 
-  auto InsertToNewDirectory(ExtendibleHTableHeaderPage *header, uint32_t directory_idx, uint32_t hash, const K &key,
-                            const V &value) -> bool;
+  auto InsertToNewDirectory(uint32_t hash, const K &key, const V &value) -> bool;
 
   auto InsertToNewBucket(ExtendibleHTableDirectoryPage *directory, uint32_t bucket_idx, const K &key, const V &value)
       -> bool;
@@ -120,8 +119,10 @@ class DiskExtendibleHashTable {
                               page_id_t new_bucket_page_id, uint32_t new_local_depth, uint32_t local_depth_mask);
 
   void MigrateEntries(ExtendibleHTableBucketPage<K, V, KC> *old_bucket,
-                      ExtendibleHTableBucketPage<K, V, KC> *new_bucket, uint32_t new_bucket_idx,
-                      uint32_t local_depth_mask);
+                      ExtendibleHTableBucketPage<K, V, KC> *new_bucket, uint32_t local_depth_mask);
+
+  auto InsertToBucket(ExtendibleHTableDirectoryPage *dir_page, uint32_t hash, const K &key, const V &value) -> bool;
+  auto GetDirId(uint32_t hash) const -> page_id_t;
 
   // member variables
   std::string index_name_;
@@ -132,6 +133,8 @@ class DiskExtendibleHashTable {
   uint32_t directory_max_depth_;
   uint32_t bucket_max_size_;
   page_id_t header_page_id_;
+  BasicPageGuard header_guard_;
+  ExtendibleHTableHeaderPage *header_page_;
 };
 
 }  // namespace bustub

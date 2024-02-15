@@ -13,7 +13,7 @@ namespace bustub {
  */
 class Watermark {
  public:
-  explicit Watermark(timestamp_t commit_ts) : commit_ts_(commit_ts), watermark_(commit_ts) {}
+  explicit Watermark(timestamp_t commit_ts) : commit_ts_(commit_ts), watermark_(commit_ts), max_commit_ts_(commit_ts) {}
 
   auto AddTxn(timestamp_t read_ts) -> void;
 
@@ -33,6 +33,8 @@ class Watermark {
   timestamp_t commit_ts_;
 
   timestamp_t watermark_;
+
+  timestamp_t max_commit_ts_;
 
   std::unordered_map<timestamp_t, int> current_reads_;
 };

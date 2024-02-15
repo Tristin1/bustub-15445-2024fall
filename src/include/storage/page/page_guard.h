@@ -106,9 +106,10 @@ class BasicPageGuard {
   friend class ReadPageGuard;
   friend class WritePageGuard;
 
-  [[maybe_unused]] BufferPoolManager *bpm_{nullptr};
+  BufferPoolManager *bpm_{nullptr};
   Page *page_{nullptr};
   bool is_dirty_{false};
+  bool is_removed_{false};
 };
 
 class ReadPageGuard {
@@ -169,6 +170,7 @@ class ReadPageGuard {
  private:
   // You may choose to get rid of this and add your own private variables.
   BasicPageGuard guard_;
+  bool is_removed_{false};
 };
 
 class WritePageGuard {
@@ -236,6 +238,7 @@ class WritePageGuard {
  private:
   // You may choose to get rid of this and add your own private variables.
   BasicPageGuard guard_;
+  bool is_removed_{false};
 };
 
 }  // namespace bustub

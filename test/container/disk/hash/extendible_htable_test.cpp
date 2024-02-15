@@ -14,16 +14,19 @@
 #include <vector>
 
 #include "buffer/buffer_pool_manager.h"
+#include "common/config.h"
 #include "common/logger.h"
 #include "container/disk/hash/disk_extendible_hash_table.h"
 #include "gtest/gtest.h"
 #include "murmur3/MurmurHash3.h"
 #include "storage/disk/disk_manager_memory.h"
+#include "storage/page/extendible_htable_header_page.h"
+#include "storage/page/page_guard.h"
 
 namespace bustub {
 
 // NOLINTNEXTLINE
-TEST(ExtendibleHTableTest, DISABLED_InsertTest1) {
+TEST(ExtendibleHTableTest, InsertTest1) {
   auto disk_mgr = std::make_unique<DiskManagerUnlimitedMemory>();
   auto bpm = std::make_unique<BufferPoolManager>(50, disk_mgr.get());
 
@@ -48,7 +51,7 @@ TEST(ExtendibleHTableTest, DISABLED_InsertTest1) {
 }
 
 // NOLINTNEXTLINE
-TEST(ExtendibleHTableTest, DISABLED_InsertTest2) {
+TEST(ExtendibleHTableTest, InsertTest2) {
   auto disk_mgr = std::make_unique<DiskManagerUnlimitedMemory>();
   auto bpm = std::make_unique<BufferPoolManager>(50, disk_mgr.get());
 
@@ -91,7 +94,7 @@ TEST(ExtendibleHTableTest, DISABLED_InsertTest2) {
 }
 
 // NOLINTNEXTLINE
-TEST(ExtendibleHTableTest, DISABLED_RemoveTest1) {
+TEST(ExtendibleHTableTest, RemoveTest1) {
   auto disk_mgr = std::make_unique<DiskManagerUnlimitedMemory>();
   auto bpm = std::make_unique<BufferPoolManager>(50, disk_mgr.get());
 
@@ -154,6 +157,56 @@ TEST(ExtendibleHTableTest, DISABLED_RemoveTest1) {
   }
 
   ht.VerifyIntegrity();
+}
+
+TEST(ExtendibleHTableTest, Removetest2) {
+  auto disk_mgr = std::make_unique<DiskManagerUnlimitedMemory>();
+  auto bpm = std::make_unique<BufferPoolManager>(50, disk_mgr.get());
+
+  DiskExtendibleHashTable<int, int, IntComparator> ht("blah", bpm.get(), IntComparator(), HashFunction<int>(), 0, 3, 2);
+
+  bool inserted = ht.Insert(0, 0);
+  ASSERT_TRUE(inserted);
+  std::vector<int> res;
+  ht.GetValue(0, &res);
+  ASSERT_EQ(1, res.size());
+  ASSERT_EQ(0, res[0]);
+
+  inserted = ht.Insert(16, 16);
+  ASSERT_TRUE(inserted);
+  res.clear();
+  ht.GetValue(16, &res);
+  ASSERT_EQ(1, res.size());
+  ASSERT_EQ(16, res[0]);
+
+  inserted = ht.Insert(4, 4);
+  ASSERT_TRUE(inserted);
+  res.clear();
+  ht.GetValue(4, &res);
+  ASSERT_EQ(1, res.size());
+  ASSERT_EQ(4, res[0]);
+  // insert some values
+
+  bool removed = ht.Remove(0);
+  ASSERT_TRUE(removed);
+  res.clear();
+  bool got_value = ht.GetValue(0, &res);
+  ASSERT_FALSE(got_value);
+  ASSERT_EQ(0, res.size());
+
+  removed = ht.Remove(16);
+  ASSERT_TRUE(removed);
+  res.clear();
+  got_value = ht.GetValue(16, &res);
+  ASSERT_FALSE(got_value);
+  ASSERT_EQ(0, res.size());
+
+  removed = ht.Remove(4);
+  ASSERT_TRUE(removed);
+  res.clear();
+  got_value = ht.GetValue(4, &res);
+  ASSERT_FALSE(got_value);
+  ASSERT_EQ(0, res.size());
 }
 
 }  // namespace bustub

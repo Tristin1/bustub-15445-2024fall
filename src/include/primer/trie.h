@@ -89,7 +89,10 @@ class TrieNodeWithValue : public TrieNode {
   //
   // Note: if you want to convert `unique_ptr` into `shared_ptr`, you can use `std::shared_ptr<T>(std::move(ptr))`.
   auto Clone() const -> std::unique_ptr<TrieNode> override {
-    return std::make_unique<TrieNodeWithValue<T>>(children_, value_);
+    // auto value = std::make_shared<T>(value_);
+    auto temp = std::make_unique<TrieNodeWithValue<T>>(children_, value_);
+    temp->is_value_node_ = this->is_value_node_;
+    return temp;
   }
 
   // The value associated with this trie node.
@@ -131,6 +134,8 @@ class Trie {
 
   // Get the root of the trie, should only be used in test cases.
   auto GetRoot() const -> std::shared_ptr<const TrieNode> { return root_; }
+
+  auto RemoveHelper(std::string_view key, size_t index, const std::shared_ptr<TrieNode> &p) const -> bool;
 };
 
 }  // namespace bustub
