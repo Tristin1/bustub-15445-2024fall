@@ -1,3 +1,12 @@
+
+100 points in lab0 lab1 lab3
+92points in lab2
+70points in lab4
+
+
+
+
+
 <img src="logo/bustub-whiteborder.svg" alt="BusTub Logo" height="200">
 
 -----------------
